@@ -1,4 +1,6 @@
 using System;
+using System.Net;
+using Microsoft.AspNetCore.HttpOverrides;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -26,6 +28,10 @@ namespace WebApp
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+	    services.Configure<ForwardedHeadersOptions>(options =>
+	    {
+	       options.KnownProxies.Add(IPAddress.Parse("10.0.0.100"));
+	    });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -39,6 +45,10 @@ namespace WebApp
             app.UseHttpsRedirection();
 
             app.UseRouting();
+	    app.UseForwardedHeaders(new ForwardedHeadersOptions
+	    {
+		    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+	    });
 
             app.UseAuthorization();
 
